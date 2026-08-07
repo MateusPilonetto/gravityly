@@ -386,4 +386,73 @@ onMounted(() => {
     font-size: 1.1rem;
     margin: 0;
 }
+
+.search-input {
+  min-width: 0;
+}
+
+@media (max-width: 600px) {
+  .search-page {
+    min-height: calc(100dvh - 5rem);
+    padding: 1rem 0.85rem 7rem;
+  }
+
+  .search-container {
+    gap: 0.55rem;
+    margin-bottom: 2rem;
+  }
+
+  .search-input {
+    padding: 1rem;
+    border-radius: 1rem;
+  }
+
+  .search-button {
+    width: 3.4rem;
+    height: 3.4rem;
+    flex: 0 0 3.4rem;
+    margin-left: 0;
+    border-radius: 1rem;
+  }
+
+  .results-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+    gap: 1rem;
+  }
+
+  .user-card {
+    padding: 1.35rem 0.9rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .results-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .user-card {
+    align-items: center;
+    flex-direction: row;
+    gap: 1rem;
+    text-align: left;
+  }
+
+  .card-avatar {
+    width: 64px;
+    height: 64px;
+    flex: 0 0 64px;
+    margin-bottom: 0;
+  }
+
+  .card-info {
+    min-width: 0;
+    text-align: left;
+  }
+
+  .card-username,
+  .card-name,
+  .suggestion-meta {
+    overflow-wrap: anywhere;
+  }
+}
 </style>

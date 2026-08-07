@@ -426,4 +426,31 @@ async function handleDelete() {
     flex-direction: column;
   }
 }
+
+@media (max-width: 390px) {
+  .post-card {
+    padding: 0.85rem;
+  }
+
+  .post-header {
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .post-date {
+    max-width: none;
+    padding-left: 3.15rem;
+    text-align: left;
+  }
+
+  .post-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .action-button {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}
 </style>

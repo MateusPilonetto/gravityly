@@ -109,20 +109,6 @@ const updatePost = (updatedPost) => {
   ));
 };
 
-const removePost = (deletedPostId) => {
-  const deletedPostWasDisplayed = posts.value.some(
-    (post) => String(post.id) === String(deletedPostId),
-  );
-  posts.value = posts.value.filter((post) => String(post.id) !== String(deletedPostId));
-
-  if (
-    deletedPostWasDisplayed
-    && profileUser.value
-    && Number.isFinite(Number(profileUser.value.posts_count))
-  ) {
-    profileUser.value.posts_count = Math.max(0, Number(profileUser.value.posts_count) - 1);
-  }
-};
 
 watch(() => route.params.username, () => {
   void loadUserProfile();
@@ -246,9 +232,7 @@ const handleFollowToggle = async () => {
             v-for="post in posts"
             :key="post.id"
             :post="post"
-            allow-delete
             @updated="updatePost"
-            @deleted="removePost"
           />
         </div>
 
@@ -292,4 +276,68 @@ const handleFollowToggle = async () => {
 .posts-state p { margin: 0; }
 .posts-error { color: #ff9e9e; }
 .posts-retry-button { border: 1px solid #6F5CFF; border-radius: 8px; padding: 8px 14px; background: transparent; color: #fff; cursor: pointer; font-weight: bold; }
+
+@media (max-width: 600px) {
+  .profile-container {
+    padding: 1rem 0.85rem 7rem;
+  }
+
+  .profile-header {
+    align-items: center;
+    flex-direction: column;
+    gap: 1.2rem;
+    margin-bottom: 2rem;
+  }
+
+  .profile-avatar-container {
+    margin-right: 0;
+  }
+
+  .profile-avatar {
+    width: clamp(96px, 30vw, 135px);
+    height: clamp(96px, 30vw, 135px);
+  }
+
+  .profile-info {
+    width: 100%;
+  }
+
+  .info-top {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .username {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .info-stats {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .info-stats li {
+    min-width: 0;
+    flex: 1;
+    text-align: center;
+  }
+}
+
+@media (max-width: 380px) {
+  .info-top {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .btn-edit {
+    width: 100%;
+  }
+
+  .info-stats {
+    font-size: 0.86rem;
+  }
+}
 </style>

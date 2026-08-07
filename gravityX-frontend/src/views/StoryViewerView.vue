@@ -22,6 +22,9 @@ const deletingStory = ref(false);
 const deleteError = ref('');
 const storyVideo = ref(null);
 const isVideoMuted = ref(true);
+const storyDurationMs = ref(5000);
+const mediaReady = ref(false);
+let imageAdvanceTimer = null;
 
 const currentStory = computed(() => stories.value[currentIndex.value] || null);
 const currentAuthor = computed(() => currentStory.value?.user || null);
@@ -33,11 +36,21 @@ const canDeleteCurrentStory = computed(() => (
   currentAuthor.value?.id != null
   && String(currentAuthor.value.id) === String(userStore.currentUser?.id)
 ));
+const currentAuthorName = computed(() => (
+  currentAuthor.value?.name || currentAuthor.value?.username || 'User'
+));
 
 function getArrayPayload(responsePayload, key) {
   const value = responsePayload?.[key] ?? responsePayload?.data?.[key];
 
   return Array.isArray(value) ? value : [];
+}
+
+function isStoryActive(story) {
+  if (!story?.expires_at) return true;
+
+  const expirationTime = new Date(story.expires_at).getTime();
+  return Number.isNaN(expirationTime) || expirationTime > Date.now();
 }
 
 function flattenStories(storyGroups) {
@@ -50,7 +63,7 @@ function flattenStories(storyGroups) {
     }
 
     return authorStories
-      .filter((story) => story?.id && typeof story.media_url === 'string')
+      .filter((story) => story?.id && typeof story.media_url === 'string' && isStoryActive(story))
       .map((story) => ({ ...story, user: author }));
   });
 }
@@ -59,10 +72,46 @@ function findStoryIndex(storyId) {
   return stories.value.findIndex((story) => String(story.id) === String(storyId));
 }
 
+function clearImageAdvanceTimer() {
+  if (imageAdvanceTimer !== null) {
+    window.clearTimeout(imageAdvanceTimer);
+    imageAdvanceTimer = null;
+  }
+}
+
 function resetMediaState() {
+  clearImageAdvanceTimer();
   mediaFailed.value = false;
+  mediaReady.value = false;
   deleteError.value = '';
   isVideoMuted.value = true;
+  storyDurationMs.value = 5000;
+}
+
+function startImageAdvanceTimer() {
+  clearImageAdvanceTimer();
+
+  if (isVideo.value || mediaFailed.value || deletingStory.value) return;
+
+  imageAdvanceTimer = window.setTimeout(() => {
+    imageAdvanceTimer = null;
+    goNext();
+  }, storyDurationMs.value);
+}
+
+function handleImageLoad() {
+  mediaReady.value = true;
+  startImageAdvanceTimer();
+}
+
+function handleVideoMetadata(event) {
+  const durationSeconds = event.currentTarget.duration;
+
+  if (Number.isFinite(durationSeconds) && durationSeconds > 0) {
+    storyDurationMs.value = Math.max(1000, Math.round(durationSeconds * 1000));
+  }
+
+  mediaReady.value = true;
 }
 
 function selectStory(index, updateRoute = true) {
@@ -137,6 +186,8 @@ function handleKeydown(event) {
 }
 
 function handleMediaError() {
+  clearImageAdvanceTimer();
+  mediaReady.value = false;
   mediaFailed.value = true;
 }
 
@@ -185,6 +236,14 @@ async function deleteCurrentStory() {
     return;
   }
 
+  const videoBeforeDelete = storyVideo.value;
+  const shouldResumeVideo = Boolean(
+    videoBeforeDelete && !videoBeforeDelete.paused && !videoBeforeDelete.ended
+  );
+
+  clearImageAdvanceTimer();
+  videoBeforeDelete?.pause();
+  mediaReady.value = false;
   deletingStory.value = true;
   deleteError.value = '';
 
@@ -213,6 +272,20 @@ async function deleteCurrentStory() {
       deleteError.value = errorResponse.firstMessage?.()
         || errorResponse.message
         || 'Could not delete this story.';
+
+      if (String(currentStory.value?.id) === String(deletedStoryId)) {
+        mediaReady.value = true;
+
+        if (isVideo.value && shouldResumeVideo && storyVideo.value === videoBeforeDelete) {
+          try {
+            await videoBeforeDelete.play();
+          } catch {
+            // Keep the story visible even if the browser refuses to resume autoplay.
+          }
+        } else if (!isVideo.value) {
+          startImageAdvanceTimer();
+        }
+      }
     }
   } finally {
     deletingStory.value = false;
@@ -267,6 +340,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+  clearImageAdvanceTimer();
   document.body.classList.remove('story-viewer-open');
   window.removeEventListener('keydown', handleKeydown);
 });
@@ -299,6 +373,7 @@ onBeforeUnmount(() => {
         class="story-media"
         :src="currentMediaUrl"
         :alt="`${currentAuthor?.name || currentAuthor?.username || 'User'}'s story`"
+        @load="handleImageLoad"
         @error="handleMediaError"
       >
       <video
@@ -310,6 +385,7 @@ onBeforeUnmount(() => {
         autoplay
         :muted="isVideoMuted"
         playsinline
+        @loadedmetadata="handleVideoMetadata"
         @ended="goNext"
         @error="handleMediaError"
         @volumechange="handleVideoVolumeChange"
@@ -329,7 +405,9 @@ onBeforeUnmount(() => {
           :class="{
             'is-complete': index < currentIndex,
             'is-current': index === currentIndex,
+            'is-running': index === currentIndex && mediaReady,
           }"
+          :style="index === currentIndex ? { '--story-duration': `${storyDurationMs}ms` } : undefined"
         ></span>
       </div>
 
@@ -341,6 +419,10 @@ onBeforeUnmount(() => {
             :alt="`${currentAuthor?.name || currentAuthor?.username || 'User'}'s profile photo`"
             @error="handleAvatarError"
           >
+          <span class="story-author-copy">
+            <strong>{{ currentAuthorName }}</strong>
+            <small v-if="currentAuthor?.username">@{{ currentAuthor.username }}</small>
+          </span>
         </div>
         <div class="story-header-actions">
           <button
@@ -505,9 +587,21 @@ onBeforeUnmount(() => {
   content: '';
 }
 
-.story-progress-segment.is-complete::after,
-.story-progress-segment.is-current::after {
+.story-progress-segment.is-complete::after {
   width: 100%;
+}
+
+.story-progress-segment.is-current::after {
+  width: 0;
+}
+
+.story-progress-segment.is-current.is-running::after {
+  animation: story-progress var(--story-duration, 5000ms) linear forwards;
+}
+
+@keyframes story-progress {
+  from { width: 0; }
+  to { width: 100%; }
 }
 
 .story-header {
@@ -524,7 +618,33 @@ onBeforeUnmount(() => {
 
 .story-author {
   display: flex;
+  min-width: 0;
   align-items: center;
+  gap: 0.55rem;
+}
+
+.story-author-copy {
+  display: grid;
+  min-width: 0;
+  line-height: 1.1;
+}
+
+.story-author-copy strong,
+.story-author-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.story-author-copy strong {
+  color: #fff;
+  font-size: 0.84rem;
+}
+
+.story-author-copy small {
+  margin-top: 0.15rem;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.7rem;
 }
 
 .story-author-avatar {
@@ -682,7 +802,7 @@ onBeforeUnmount(() => {
 
   .story-stage,
   .viewer-status {
-    width: 100vw;
+    width: 100%;
     height: 100dvh;
     max-height: none;
     aspect-ratio: auto;
@@ -725,12 +845,38 @@ onBeforeUnmount(() => {
   }
 }
 
+@media (max-width: 360px) {
+  .story-header {
+    gap: 0.4rem;
+  }
+
+  .story-header-actions {
+    gap: 0.25rem;
+  }
+
+  .close-story-button,
+  .delete-story-button,
+  .sound-story-button {
+    width: 2.15rem;
+    height: 2.15rem;
+  }
+
+  .story-author-avatar {
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .close-story-button,
   .delete-story-button,
   .sound-story-button,
   .story-direction {
     transition: none;
+  }
+
+  .story-progress-segment.is-current.is-running::after {
+    animation-timing-function: steps(1, end);
   }
 }
 </style>

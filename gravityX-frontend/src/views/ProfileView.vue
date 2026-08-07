@@ -4,12 +4,10 @@ import { useRouter } from 'vue-router';
 import PostCard from '../components/PostCard.vue';
 import {
   api,
-  clearToken,
   getFallbackAvatarUrl,
   getProfileAvatarUrl,
 } from '../services/api.js';
 import { fetchPostsByUsername } from '../services/posts.js';
-import { userStore } from '../store.js';
 
 const router = useRouter();
 
@@ -101,11 +99,6 @@ const handleAvatarError = (event) => {
   event.currentTarget.src = getFallbackAvatarUrl(profileUser.value, 256);
 };
 
-const handleLogout = () => {
-  clearToken();
-  userStore.clearUser();
-  router.replace('/login');
-};
 </script>
 
 <template>
@@ -374,14 +367,73 @@ const handleLogout = () => {
 }
 
 @media (max-width: 600px) {
- .profile-header {
-  display: flex;
-  flex-direction: column;
- } 
+  .profile-container {
+    padding: 1rem 0.85rem 7rem;
+  }
 
- .info-top {
-  display: flex;
-  justify-content: space-between;
- }
+  .profile-header {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 1.2rem;
+    margin-bottom: 2rem;
+  }
+
+  .profile-avatar-container {
+    margin-right: 0;
+  }
+
+  .profile-avatar {
+    width: clamp(96px, 30vw, 135px);
+    height: clamp(96px, 30vw, 135px);
+  }
+
+  .profile-info {
+    width: 100%;
+  }
+
+  .info-top {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .username {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .btn-edit {
+    flex: 0 0 auto;
+  }
+
+  .info-stats {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .info-stats li {
+    min-width: 0;
+    flex: 1;
+    text-align: center;
+  }
+}
+
+@media (max-width: 380px) {
+  .info-top {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .btn-edit {
+    width: 100%;
+    text-align: center;
+  }
+
+  .info-stats {
+    font-size: 0.86rem;
+  }
 }
 </style>

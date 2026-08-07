@@ -14,6 +14,7 @@ const selectedFile = ref(null);
 const previewUrl = ref(null);
 let redirectTimer = null;
 const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024;
+const ACCEPTED_AVATAR_TYPES = new Set(['image/jpeg', 'image/png']);
 
 const form = ref({
   name: '',
@@ -76,6 +77,22 @@ const onFileChange = (event) => {
 
   error.value = '';
   successMessage.value = '';
+
+  if (!ACCEPTED_AVATAR_TYPES.has(selectedImage.type)) {
+    selectedFile.value = null;
+    revokePreviewUrl();
+    event.target.value = '';
+    error.value = 'Choose a JPEG or PNG profile photo.';
+    return;
+  }
+
+  if (selectedImage.size === 0) {
+    selectedFile.value = null;
+    revokePreviewUrl();
+    event.target.value = '';
+    error.value = 'The selected profile photo is empty.';
+    return;
+  }
 
   if (selectedImage.size > MAX_AVATAR_SIZE_BYTES) {
     selectedFile.value = null;
@@ -153,7 +170,7 @@ onBeforeUnmount(() => {
           <i class="fa-solid fa-chevron-left"></i> Cancel
         </router-link>
         <h2>Edit Profile</h2>
-        <div style="width: 65px;"></div> 
+        <span class="header-spacer" aria-hidden="true"></span>
       </div>
 
       <div class="avatar-section">
@@ -220,7 +237,7 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  min-height: 100vh;
+  min-height: 100dvh;
   padding: 40px 20px 100px 20px;
   color: #fff;
 }
@@ -428,5 +445,56 @@ onBeforeUnmount(() => {
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
   transform: translateY(-10px);
+}
+
+.header-spacer {
+  width: 65px;
+  flex: 0 0 65px;
+}
+
+@media (max-width: 600px) {
+  .edit-container {
+    min-height: 100dvh;
+    padding: 1rem 0.75rem 7rem;
+  }
+
+  .glass-panel {
+    padding: clamp(1rem, 5vw, 1.5rem);
+    border-radius: 18px;
+  }
+
+  .edit-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .back-btn {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .header-spacer {
+    width: auto;
+    min-width: 0;
+    flex: initial;
+  }
+}
+
+@media (max-width: 360px) {
+  .edit-header {
+    grid-template-columns: 1fr auto;
+  }
+
+  .header-spacer {
+    display: none;
+  }
+
+  .edit-header h2 {
+    text-align: right;
+  }
 }
 </style>

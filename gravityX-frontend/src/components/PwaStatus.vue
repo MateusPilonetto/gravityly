@@ -115,7 +115,7 @@ onUnmounted(() => {
   bottom: calc(6.25rem + env(safe-area-inset-bottom));
   display: grid;
   gap: 0.75rem;
-  width: min(22rem, calc(100vw - 2rem));
+  width: min(22rem, calc(100% - 2rem));
 }
 
 .pwa-notice {
@@ -149,6 +149,25 @@ onUnmounted(() => {
 .pwa-notice__button:hover,
 .pwa-notice__button:focus-visible {
   background: #ffffff;
+}
+
+
+@media (max-width: 480px) {
+  .pwa-notices {
+    right: 0.75rem;
+    bottom: calc(5.75rem + env(safe-area-inset-bottom));
+    left: 0.75rem;
+    width: auto;
+  }
+
+  .pwa-notice {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .pwa-notice__button {
+    width: 100%;
+  }
 }
 
 @media (min-width: 1024px) {

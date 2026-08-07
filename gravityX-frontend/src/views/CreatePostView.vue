@@ -304,7 +304,7 @@ onBeforeUnmount(revokeImagePreviewUrl);
   position: relative;
   isolation: isolate;
   max-width: 760px;
-  min-height: calc(100vh - 7rem);
+  min-height: calc(100dvh - 7rem);
   margin: 0 auto;
   padding: 1.5rem 1.25rem 8rem;
   overflow: hidden;
@@ -914,6 +914,50 @@ textarea:disabled {
   .editor-shell,
   .image-picker {
     transition: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .create-page {
+    padding-right: 0.85rem;
+    padding-left: 0.85rem;
+  }
+
+  .post-composer {
+    border-radius: 18px;
+  }
+
+  .author-strip {
+    flex-wrap: wrap;
+  }
+
+  .field-heading {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 390px) {
+  .field-heading {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .image-picker {
+    align-items: flex-start;
+  }
+
+  .image-picker-action {
+    display: none;
+  }
+
+  .form-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .cancel-button,
+  .publish-button {
+    width: 100%;
   }
 }
 </style>

@@ -429,10 +429,31 @@ watch(postId, () => {
 }
 
 @media (max-width: 480px) {
+  .post-detail-container {
+    padding: 1rem 0.85rem 7rem;
+  }
+
   .detail-header {
     align-items: flex-start;
     flex-direction: column;
     gap: 0.5rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .comment-form-footer {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  .comment-submit-button {
+    width: 100%;
+  }
+
+  .comment-card {
+    gap: 0.6rem;
+    padding: 0.75rem;
   }
 }
 </style>

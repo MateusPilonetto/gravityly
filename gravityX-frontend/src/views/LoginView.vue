@@ -82,8 +82,8 @@ const handleLogin = async () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  width: 100vw;
+  min-height: 100dvh;
+  width: 100%;
   padding: 1rem;
   box-sizing: border-box;
 }
@@ -176,5 +176,25 @@ const handleLogin = async () => {
   opacity: 0.7;
   cursor: not-allowed;
   transform: none;
+}
+
+.login-screen {
+  min-height: 100dvh;
+  height: auto;
+  width: 100%;
+  overflow-y: auto;
+  padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom));
+}
+
+.login-box {
+  padding: clamp(1.5rem, 7vw, 3rem) clamp(1.15rem, 6vw, 2rem);
+  border-radius: clamp(1.25rem, 6vw, 2rem);
+}
+
+@media (max-width: 420px) {
+  .login-title { font-size: 2rem; }
+  .login-subtitle { font-size: 1.25rem; }
+  .input-field { padding: 0.9rem 1rem; }
+  .btn { font-size: 1rem; }
 }
 </style>

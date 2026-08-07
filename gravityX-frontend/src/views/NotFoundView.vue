@@ -22,7 +22,7 @@ const actionLabel = computed(() => (isAuthenticated() ? 'Go to Feed' : 'Go to Lo
 <style scoped>
 .not-found-page {
   display: grid;
-  min-height: 100vh;
+  min-height: 100dvh;
   place-items: center;
   padding: 2rem;
   box-sizing: border-box;
@@ -62,5 +62,19 @@ p {
   color: #fff;
   font-weight: 700;
   text-decoration: none;
+}
+
+@media (max-width: 420px) {
+  .not-found-page {
+    padding: 1rem;
+  }
+
+  .not-found-card {
+    padding: 2rem 1rem;
+  }
+
+  .action-button {
+    width: 100%;
+  }
 }
 </style>

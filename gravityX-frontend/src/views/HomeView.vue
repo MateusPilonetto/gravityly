@@ -717,7 +717,7 @@ onMounted(() => {
   position: relative;
   isolation: isolate;
   max-width: 760px;
-  min-height: calc(100vh - 7rem);
+  min-height: calc(100dvh - 7rem);
   margin: 0 auto;
   padding: 1.5rem 1.25rem 8rem;
   overflow: hidden;
@@ -1240,19 +1240,45 @@ onMounted(() => {
   }
 }
 
-@media (max-width: 600px) {
-  .hero-create-button {
-    min-width: 10rem;
-    padding: 0.50rem 0.70rem;
-    background: var(--gold);
-    color: #211934;
-    box-shadow: 0 12px 25px rgba(255, 200, 87, 0.22);
+@media (max-width: 480px) {
+  .feed-page {
+    padding-right: 0.85rem;
+    padding-left: 0.85rem;
+  }
+
+  .stories-list {
+    margin-right: -0.85rem;
+    padding-right: 0.85rem;
   }
 
   .feed-hero {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    padding: 1.25rem;
+    border-radius: 18px;
+  }
+
+  .quick-composer {
+    align-items: flex-start;
+  }
+
+  .composer-copy strong {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 360px) {
+  .story-avatar-frame,
+  .story-preview-avatar-frame {
+    width: 3.6rem;
+    height: 3.6rem;
+  }
+
+  .story-preview {
+    width: 4rem;
+    flex-basis: 4rem;
+  }
+
+  .composer-arrow {
+    display: none;
   }
 }
 </style>

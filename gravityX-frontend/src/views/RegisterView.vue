@@ -81,8 +81,8 @@ const handleRegister = async () => {
 
 <style scoped>
 .error { color: #ff5d5d; text-align: center; margin-bottom: 1rem; }
-.login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; width: 100vw; padding: 1rem; box-sizing: border-box; }
-.login-box { display: flex; flex-direction: column; padding: 2rem; border-radius: 2rem; width: 100%; max-width: 400px; box-sizing: border-box; margin-top: 2rem; }
+.login-screen { display: flex; justify-content: center; align-items: center; min-height: 100dvh; width: 100%; padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom)); box-sizing: border-box; overflow-y: auto; }
+.login-box { display: flex; flex-direction: column; padding: clamp(1.25rem, 6vw, 2rem); border-radius: clamp(1.25rem, 5vw, 2rem); width: 100%; max-width: 400px; box-sizing: border-box; }
 .login-header { text-align: center; margin-bottom: 1.5rem; }
 .login-title { color: #FFC857; margin: 0; font-size: 2.5rem; }
 .login-subtitle { color: #C9C2E8; font-size: 1.5rem; margin-top: 0.5rem; }
@@ -94,4 +94,14 @@ const handleRegister = async () => {
 .btn:hover { background-color: #C9C2E8; color: #211934; transform: translateY(-2px); }
 .btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
 .register { background-color: transparent; border: 1px solid rgba(111, 92, 255, 0.3); font-size: 1rem; padding: 0.8rem; }
+
+@media (max-width: 420px) {
+  .login-screen { align-items: flex-start; }
+  .login-title { font-size: 2rem; }
+  .login-subtitle { font-size: 1.25rem; }
+  .login-header { margin-bottom: 1rem; }
+  .login-form { gap: 0.7rem; }
+  .input-field { padding: 0.78rem 1rem; }
+  .btn { min-height: 2.9rem; font-size: 1rem; }
+}
 </style>
